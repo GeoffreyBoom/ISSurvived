@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class EnemyBehaviour : Photon.MonoBehaviour
 {
     //The possible states of the npc
-    public enum State { Idle, MoveTo, Patrol, GoToAttack, AttackTarget };
+    public enum State { Idle, MoveTo, Patrol, GoToAttack, AttackTarget, ReceiveInput };
 
     public State currentState = State.Idle;
 
@@ -17,8 +17,8 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     public Vector3 patrolNextTarget;
 
     //variables for detection
-    float detectionRadius = 20.0f;
-    float detectionAngle = 150.0f;
+    float detectionRadius = 10.0f;
+    float detectionAngle = 120.0f;
     GameObject enemy;
 
     //variables for the arrive behaviour
@@ -68,34 +68,36 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     //method to check which state the npc is in and act accordingly
     void checkCurrentState()
     {
-
-        if (currentState != State.AttackTarget)
-        {//if not attacking the player
-            if (!isEnemyDetected())
+        if (currentState != State.ReceiveInput)
+        {
+            if (currentState == State.AttackTarget)
             {
-                //see if resources are detected
-                isResourceDetected();
-            }
-            if (currentState == State.GoToAttack)
-            {
-                GoToAttackBehaviour();
-            }
-            else if (currentState == State.MoveTo)
-            {
-                moveToBehaviour();
-            }
-            else if (currentState == State.Patrol)
-            {
-                patrolBehaviour();
+                attackTargetBehaviour();
             }
             else
-            {
-                idleBehaviour();
+            {   //if not attacking the player
+                if (!isEnemyDetected())
+                {
+                    //see if resources are detected
+                    isResourceDetected();
+                }
+                if (currentState == State.GoToAttack)
+                {
+                    GoToAttackBehaviour();
+                }
+                else if (currentState == State.MoveTo)
+                {
+                    moveToBehaviour();
+                }
+                else if (currentState == State.Patrol)
+                {
+                    patrolBehaviour();
+                }
+                else
+                {
+                    idleBehaviour();
+                }
             }
-        }
-        else
-        {
-            attackTargetBehaviour();
         }
     }
 
@@ -336,7 +338,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         patrolNextTarget = newTarget;
     }
 
-    void storeState(State nState, Vector3 nTarget)
+    public void storeState(State nState, Vector3 nTarget)
     {
         //a method to add a futur state (for when resources are detected)
         bool canAdd = true;

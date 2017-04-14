@@ -62,7 +62,15 @@ public class RTSInterface : MonoBehaviour
     }
     void getMouseInputs()
     {
-
+        if (Input.GetMouseButtonDown(1))
+        {
+            //no npc is selected
+            if (currentlyControlledEnemy != null && currentlyControlledEnemy.currentState == EnemyBehaviour.State.ReceiveInput)
+            {
+                currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
+            }
+            currentlyControlledEnemy = null;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             //do a raycast to see what was hit
@@ -93,12 +101,20 @@ public class RTSInterface : MonoBehaviour
 
         if (e.gameObject.GetComponent<selectAlien>().isOn == false)
         {
-            Debug.Log("Select");
+            //npc goes to the receive input state
+            if (e.currentState != EnemyBehaviour.State.Idle)
+            {
+                e.storeState(e.currentState, e.target);
+            }
+            e.currentState = EnemyBehaviour.State.ReceiveInput;
             currentlyControlledEnemy = e;
         }
         else{
-
-            Debug.Log("Deselect");
+            //npc goes back to the idle state
+            if(currentlyControlledEnemy.currentState == EnemyBehaviour.State.ReceiveInput)
+            {
+                currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
+            }
             currentlyControlledEnemy = null;
 
         }
