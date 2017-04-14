@@ -100,6 +100,16 @@ public class TPSInterface : MonoBehaviour
         healthBar.value = currentHealth;
         TPSPlayer.setDamageUI = false;
     }
+    public void increaseHealthUI()
+    {
+        currentHealth += 25;
+        Debug.Log(currentHealth);
+        if(currentHealth > 100)
+        {
+            currentHealth = 100;
+        }
+        healthBar.value = currentHealth;
+    }
 
     // Function to update StaminaUI, if he is running, lower the value, else add a recharge amount to it
     private void setStaminaUI()

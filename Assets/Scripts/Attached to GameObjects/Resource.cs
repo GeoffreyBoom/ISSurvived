@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon;
 
 /*
  * This script is used to destroy the resources when in collision trigger and make it rotate on itself. 
@@ -24,7 +25,14 @@ public class Resource : Photon.MonoBehaviour {
 	
 	private void OnTriggerEnter(Collider collision)
 	{
-        //if a player enters a resource then we destroy it:
+        if (collision.gameObject.tag == "Queen" || collision.gameObject.tag == "Alien"){
+            FindObjectOfType<RTSInterface>().GotResource();
+        }
+        else if(collision.gameObject.tag == "Player")
+        {
+            FindObjectOfType<TPSInterface>().increaseHealthUI();
+        }
+        //if a any player hits a resource then we destroy it:
 		if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Queen" || collision.gameObject.tag == "Alien")
 		{
             sound.Play();

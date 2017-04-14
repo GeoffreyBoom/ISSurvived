@@ -46,7 +46,7 @@ public class Bullet : Photon.MonoBehaviour
     {
 
         // Collision function for the Bullets, we use a PunRPC to get the best result
-        if (other.gameObject.tag == "Queen" || other.gameObject.tag == "Alien" || other.gameObject.tag == "Environment")
+        if (other.gameObject.tag == "Queen" || other.gameObject.tag == "Alien" || other.gameObject.tag == "Environment" || other.gameObject.tag == "Floor")
         {
             photonView.RPC("deleteThis", PhotonTargets.MasterClient, this.gameObject.name);
         }
