@@ -13,7 +13,7 @@ public class TPSInterface : MonoBehaviour
 
     int currentHealth, currentStamina, currentAmmo;
     int amount = 3, recharge = 2;
-    float nextMove, nextFire, moveRate = 0.1f, fireRate = 0.2f;
+    float nextMove, nextFire, moveRate = 0.1f, fireRate = 0.3f;
     bool running;
 
     // Use this for initialization
@@ -37,7 +37,7 @@ public class TPSInterface : MonoBehaviour
         if (TPSPlayer.isShooting == true && Time.time > nextFire)
         {
             nextFire = Time.time + fireRate;
-            if (currentAmmo > 0)
+            if (currentAmmo >= 0)
             {
                 loseAmmo();
                 setAmmoUI();
@@ -45,8 +45,7 @@ public class TPSInterface : MonoBehaviour
 
             if (currentAmmo == 0)
             {
-                setAmmoUI();
-                TPSPlayer.Recharge();
+                StartCoroutine(TPSPlayer.Recharge());
                 currentAmmo = 25;
                 setAmmoUI();
             }
@@ -54,7 +53,7 @@ public class TPSInterface : MonoBehaviour
 
         if (Input.GetKey("r"))
         {
-            TPSPlayer.Recharge();
+            StartCoroutine(TPSPlayer.Recharge());
             currentAmmo = 25;
             setAmmoUI();
         }

@@ -10,7 +10,7 @@ public class TPSPlayer : Photon.MonoBehaviour
     public static int ammo = 25;
     public static bool setDamageUI = false, isShooting = false;
 
-    float nextFire, fireRate = 0.3f;
+    float nextFire, rechargeTime = 0.0f, rechargeRate = 1.0f, fireRate = 0.3f;
 
     [SerializeField]
     string bulletName = "Bullet";
@@ -26,7 +26,7 @@ public class TPSPlayer : Photon.MonoBehaviour
     {
         if (photonView.isMine)
         {
-            if (Input.GetButton("Fire1") && Time.time > nextFire)
+            if (Input.GetButton("Fire1") && Time.time > nextFire && Time.time > rechargeTime)
             {
                 if (ammo <= 25 && ammo > 0)
                 {
@@ -36,10 +36,11 @@ public class TPSPlayer : Photon.MonoBehaviour
                     gun.Fire();
                 }
 
-                /*     if (ammo == 0)
-                     {
-                         Recharge();
-                     } */
+                if (ammo == 0)
+                {
+                    rechargeTime = Time.time + rechargeRate;
+                    StartCoroutine(Recharge());
+                } 
             }
 
             if (Input.GetButtonUp("Fire1"))
@@ -49,7 +50,8 @@ public class TPSPlayer : Photon.MonoBehaviour
 
             if (Input.GetKey("r"))
             {
-                Recharge();
+                rechargeTime = Time.time + rechargeRate;
+                StartCoroutine(Recharge());
             }
 
             Fall();
@@ -62,9 +64,10 @@ public class TPSPlayer : Photon.MonoBehaviour
         ammo -= 1;
     }
 
-    public static void Recharge()
+    public static IEnumerator Recharge()
     {
         isShooting = false;
+        yield return new WaitForSeconds(1.5f);
         ammo = 25;
     }
 

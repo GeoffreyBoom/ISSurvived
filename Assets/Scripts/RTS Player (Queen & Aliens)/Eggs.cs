@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Eggs : MonoBehaviour {
+public class Eggs : MonoBehaviour
+{
 
     GameObject queen;
     float timer = 8;
+    static public int counter = 0;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         queen = GameObject.FindGameObjectWithTag("Queen");
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
         if (queen.GetComponent<selectAlien>().isOn)
         {
@@ -21,10 +25,12 @@ public class Eggs : MonoBehaviour {
             this.transform.GetChild(0).GetComponent<TextMesh>().text = Mathf.RoundToInt(timer).ToString();
         }
 
-        if(timer < 0)
+        if (timer < 0)
         {
             GameObject alien = PhotonNetwork.Instantiate("Aliens", this.transform.position, this.transform.rotation, 0);
+            alien.name = alien.name + counter;
             Destroy(this.gameObject);
+            counter++;
         }
 
     }

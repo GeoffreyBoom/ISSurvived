@@ -41,11 +41,15 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     public Vector3 velocity;
 
     Animator anim;
-
+    public bool alerted = false;
+    public int currentIndex;
+    int index = 0;
+    bool surround = false;
 
     // Use this for initialization
     void Start()
     {
+        alerted = false;
         agent = GetComponent<NavMeshAgent>();
         clearAllFutur();
         inter = FindObjectOfType<RTSInterface>();
@@ -81,6 +85,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
             if (isEnemyDetected())
             {
                 Debug.Log("Enemy Detected");
+                currentState = State.GoToAttack;
             }
             else
             {
@@ -130,6 +135,9 @@ public class EnemyBehaviour : Photon.MonoBehaviour
 
     void idleBehaviour()
     {
+        alerted = false;
+        currentIndex = 0;
+        index = 0;
         if (futurStates.Count != 0)
         {
             if (!returnToIdle)
@@ -147,11 +155,33 @@ public class EnemyBehaviour : Photon.MonoBehaviour
 
     void GoToAttackBehaviour()
     {
+        if (surround == false)
+        {
+            if (currentIndex % 4 == 0)
+            {
+                assignTarget(target + Vector3.forward);
+            }
+            else if (currentIndex % 4 == 1)
+            {
+                assignTarget(target + Vector3.back);
+            }
+            else if (currentIndex % 4 == 2)
+            {
+                assignTarget(target + Vector3.left);
+            }
+            else
+            {
+                assignTarget(target + Vector3.right);
+            }
+            surround = true;
+        }
+
         if (!moving())
         {
             anim.SetBool("isWalking", false);
             //TO DO implement GoToAttacking behaviour
             currentState = State.AttackTarget;
+            surround = false;
         }
 
     }
@@ -212,6 +242,8 @@ public class EnemyBehaviour : Photon.MonoBehaviour
                 Vector3 dir = enemy.transform.position - transform.position;
                 if (Vector3.Angle(transform.forward, dir) < detectionAngle)
                 {
+                    assignTarget(enemy.transform.position);
+                    callAllFlock();
                     return true;
                 }
             }
@@ -221,6 +253,30 @@ public class EnemyBehaviour : Photon.MonoBehaviour
             enemy = GameObject.FindGameObjectWithTag("Player");
         }
         return false;
+    }
+
+    void callAllFlock()
+    {
+        if (alerted == false)
+        {
+            alerted = true;
+            currentIndex = index++;
+            GameObject[] aliens = GameObject.FindGameObjectsWithTag("Alien");
+            foreach (GameObject alien in aliens)
+            {
+                if ((alien.transform.position - transform.position).magnitude < detectionRadius)
+                {
+                    EnemyBehaviour en = alien.GetComponent<EnemyBehaviour>();
+                    en.alerted = true;
+                    if (en.currentState != State.AttackTarget)
+                    {
+                        en.currentState = State.GoToAttack;
+                        en.assignTarget(target);
+                        en.currentIndex = index++;
+                    }
+                }
+            }
+        }
     }
 
     void isResourceDetected()
@@ -233,7 +289,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
                 Vector3 dir = res.transform.position - transform.position;
                 if (Vector3.Angle(transform.forward, dir) > detectionAngle)
                 {
-                    storeState(State.MoveTo, res.transform.position);
+                    storeState(State.MoveTo, res.transform.position - Vector3.up * 0.55f);
                 }
             }
         }
@@ -267,7 +323,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         //turn towards target (align)
         //move towards target (arrive)
         //if not oriented towards target
-        if (transform.forward.Equals( direction))
+        if (transform.forward.Equals(direction))
         {
             Debug.Log("In the if statement of transform.foward " + transform.forward + " " + direction);
             //turn towards target using align

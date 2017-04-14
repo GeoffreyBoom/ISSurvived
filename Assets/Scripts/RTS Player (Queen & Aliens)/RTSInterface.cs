@@ -6,24 +6,24 @@ using UnityEngine.UI;
 
 public class RTSInterface : MonoBehaviour
 {
-    [SerializeField]
-    FlockBehaviour flockPrefab;
+    //[SerializeField]
+    //FlockBehaviour flockPrefab;
 
     List<EnemyBehaviour> enemies;
 
-    List<EnemyBehaviour> newFlock;
-    List<FlockBehaviour> flocks;
+    //List<EnemyBehaviour> newFlock;
+    //List<FlockBehaviour> flocks;
 
     Camera_RTS cam;
 
     bool patrol = false;
-    bool multipleEnemiesSelected;
+    // bool multipleEnemiesSelected;
 
     int index = 0;
 
     string moveOrPatrolString = "MOVE";
 
-    // EnemyBehaviour currentlyControlledEnemy;
+    EnemyBehaviour currentlyControlledEnemy;
     Vector3 target;
     // Use this for initialization
     void Start()
@@ -35,8 +35,8 @@ public class RTSInterface : MonoBehaviour
 
         enemies = new List<EnemyBehaviour>();
         enemies.AddRange(FindObjectsOfType<EnemyBehaviour>());
-        flocks = new List<FlockBehaviour>();
-        newFlock = new List<EnemyBehaviour>();
+        //flocks = new List<FlockBehaviour>();
+        //newFlock = new List<EnemyBehaviour>();
         cam = FindObjectOfType<Camera_RTS>();
     }
 
@@ -60,41 +60,41 @@ public class RTSInterface : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (multipleEnemiesSelected)
-            {
-                createNewFlock();
-                foreach (EnemyBehaviour en in flocks[flocks.Count - 1].enemies)
-                {
-                    en.clearAllFutur();
-                    en.currentState = EnemyBehaviour.State.Idle;
-                }
+            // if (multipleEnemiesSelected)
+            // {
+            //   createNewFlock();
+            //  foreach (EnemyBehaviour en in flocks[flocks.Count - 1].enemies)
+            //  {
+            //      en.clearAllFutur();
+            //        en.currentState = EnemyBehaviour.State.Idle;
+            //   }
 
-                /*else if (currentlyControlledEnemy != null)
-                {
-                    currentlyControlledEnemy.clearAllFutur();
-                    currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
-                }*/
-            }
-            /* else
+            //else if (currentlyControlledEnemy != null)
+            //{
+            currentlyControlledEnemy.clearAllFutur();
+            currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
+            //}
+        }
+        /* else
+         {
+             if (currentlyControlledEnemy != null)
              {
-                 if (currentlyControlledEnemy != null)
-                 {
-                     currentlyControlledEnemy.clearAllFutur();
-                     currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
-                 }
-             }*/
-        }
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            multipleEnemiesSelected = true;
-            //currentlyControlledEnemy = null;
-        }
-        else if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            multipleEnemiesSelected = false;
-        }
-    }
+                 currentlyControlledEnemy.clearAllFutur();
+                 currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
+             }
+         }*/
 
+        /* if (Input.GetKeyDown(KeyCode.LeftControl))
+         {
+             multipleEnemiesSelected = true;
+             //currentlyControlledEnemy = null;
+         }
+         else if (Input.GetKeyUp(KeyCode.LeftControl))
+         {
+             multipleEnemiesSelected = false;
+         }*/
+    }
+    /*
     void createNewFlock()
     {
         if (newFlock.Count > 0)
@@ -124,21 +124,21 @@ public class RTSInterface : MonoBehaviour
                 flocks[flocks.Count - 1].enemies.Add(en);
             }
             Debug.Log("Aliens in flock: " + flocks[flocks.Count - 1].enemies.Count);
-        }/*else if (newFlock.Count == 1)
+        }else if (newFlock.Count == 1)
         {
             multipleEnemiesSelected = false;
             currentlyControlledEnemy = newFlock[0];
-        }*/
-        newFlock = new List<EnemyBehaviour>();
+        }
+        //newFlock = new List<EnemyBehaviour>();
     }
-
+    */
     void getMouseInputs()
     {
         if (Input.GetMouseButtonDown(1))
         {
-            //currentlyControlledEnemy = null;
+            currentlyControlledEnemy = null;
 
-            createNewFlock();
+            //createNewFlock();
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -149,16 +149,16 @@ public class RTSInterface : MonoBehaviour
 
                 if (hit.collider.gameObject.tag.Equals("Alien"))
                 {
-                    if (multipleEnemiesSelected)
-                    {
-                        newFlock.Add(hit.collider.GetComponentInParent<EnemyBehaviour>());
-                    }
-                    else
-                    {
-                        //wasClickedOn(hit.collider.GetComponentInParent<EnemyBehaviour>());
-                        createNewFlock();
-                        newFlock.Add(hit.collider.GetComponentInParent<EnemyBehaviour>());
-                    }
+                    // if (multipleEnemiesSelected)
+                    //  {
+                    //     newFlock.Add(hit.collider.GetComponentInParent<EnemyBehaviour>());
+                    // }
+                    //   else
+                    //   {
+                    wasClickedOn(hit.collider.GetComponentInParent<EnemyBehaviour>());
+                    //createNewFlock();
+                    //newFlock.Add(hit.collider.GetComponentInParent<EnemyBehaviour>());
+                    //  }
 
                 }
                 else if (hit.collider.gameObject.tag == "Floor")
@@ -170,11 +170,11 @@ public class RTSInterface : MonoBehaviour
                     // createNewFlock();
                     // if (multipleEnemiesSelected )
                     // {
-                    giveCommandToFlock(flocks.Count - 1);
+                    //giveCommandToFlock(flocks.Count - 1);
                     //}
                     // else
                     // {
-                    //     giveCommand();
+                    giveCommand();
                     //  }
                     //  }
                     // else
@@ -185,36 +185,36 @@ public class RTSInterface : MonoBehaviour
             }
         }
     }
-    /*
+
     public void wasClickedOn(EnemyBehaviour e)
     {
         Debug.Log("Has e");
         currentlyControlledEnemy = e;
     }
-    */
-    /* void giveCommand()
-     {
-         if(currentlyControlledEnemy != null)
-         {
-             currentlyControlledEnemy.clearAllFutur();
-             Debug.Log(target);
-             if (patrol)
-             {
-                 Debug.Log("Patrol");
-                 currentlyControlledEnemy.currentState = EnemyBehaviour.State.Patrol;
-                 currentlyControlledEnemy.assignTarget(currentlyControlledEnemy.transform.position);
-                 currentlyControlledEnemy.assignPatrolTarget(target);
-             }
-             else
-             {
-                 Debug.Log("Move To");
-                 currentlyControlledEnemy.currentState = EnemyBehaviour.State.MoveTo;
-                 currentlyControlledEnemy.assignTarget(target);
-             }
-         }
-     }*/
 
-    void giveCommandToFlock(int index)
+    void giveCommand()
+    {
+        if (currentlyControlledEnemy != null)
+        {
+            currentlyControlledEnemy.clearAllFutur();
+            Debug.Log(target);
+            if (patrol)
+            {
+                Debug.Log("Patrol");
+                currentlyControlledEnemy.currentState = EnemyBehaviour.State.Patrol;
+                currentlyControlledEnemy.assignTarget(currentlyControlledEnemy.transform.position);
+                currentlyControlledEnemy.assignPatrolTarget(target);
+            }
+            else
+            {
+                Debug.Log("Move To");
+                currentlyControlledEnemy.currentState = EnemyBehaviour.State.MoveTo;
+                currentlyControlledEnemy.assignTarget(target);
+            }
+        }
+    }
+
+    /*void giveCommandToFlock(int index)
     {
         if (index < flocks.Count && index >= 0)
         {
@@ -238,7 +238,7 @@ public class RTSInterface : MonoBehaviour
             }
         }
     }
-
+    */
     public void MoveOrPatrolBtnClicked()
     {
         patrol = !patrol;
@@ -266,7 +266,7 @@ public class RTSInterface : MonoBehaviour
 
     public void GotResource()
     {
-        Text crystalText = this.GetComponentsInChildren<Text>()[1];
+        Text crystalText = this.GetComponentsInChildren<Text>()[0];
         int resNum = int.Parse(crystalText.text) + 1;
         string temp = resNum + "";
         crystalText.text = temp;

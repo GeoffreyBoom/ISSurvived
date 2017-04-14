@@ -1,70 +1,78 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon;
 
-public class selectAlien : MonoBehaviour {
+public class selectAlien : Photon.MonoBehaviour
+{
 
 
     [SerializeField]
     public float radius = 1f;
     [SerializeField]
-    public int numOfPoints = 100; 
+    public int numOfPoints = 100;
 
     private float increment = 0.2f;
     private bool drawPoints = false;
     private float speed = 4.0f;
     LineRenderer line;
 
-    public bool  isMoving = false;
+    public bool isMoving = false;
     public bool isOn = false;
 
 
     void Start()
     {
         line = gameObject.GetComponent<LineRenderer>();
-        line.enabled = false; 
+        line.enabled = false;
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
 
-        if (drawPoints == false)
+        if (photonView.isMine)
         {
-            selectQueenOrAlien();
-        }
-        else
-        {
-            if (isOn == false)
+            if (drawPoints == false)
             {
-                if (increment <= radius)
-                {
-
-                    CreatePoints(increment);
-                    increment += increment * Time.deltaTime * speed;
-                }
-                else
-                {
-                    isOn = true;
-                    drawPoints = false;
-
-                }
+                selectQueenOrAlien();
             }
             else
             {
-                if (increment >= 0.2f)
+                if (isOn == false)
                 {
-                    CreatePoints(increment);
-                    increment -= increment * Time.deltaTime * speed;
+                    if (increment <= radius)
+                    {
+
+                        CreatePoints(increment);
+                        increment += increment * Time.deltaTime * speed;
+                    }
+                    else
+                    {
+                        isOn = true;
+                        drawPoints = false;
+
+                    }
                 }
                 else
                 {
-                    isOn = false;
-                    isMoving = false;
-                    drawPoints = false;
+                    if (increment >= 0.2f)
+                    {
+                        CreatePoints(increment);
+                        increment -= increment * Time.deltaTime * speed;
+                    }
+                    else
+                    {
+                        isOn = false;
+                        isMoving = false;
+                        drawPoints = false;
+                    }
                 }
-            }
 
-         }
+            }
+        }
+
+
     }
 
 
@@ -72,7 +80,7 @@ public class selectAlien : MonoBehaviour {
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if(line.enabled == false)
+            if (line.enabled == false)
             {
                 line.enabled = true;
             }
@@ -86,6 +94,7 @@ public class selectAlien : MonoBehaviour {
                 {
                     if (hit.rigidbody.gameObject.name == this.name)
                     {
+                        Debug.Log(hit.rigidbody.gameObject.name);
                         drawPoints = true;
                     }
                 }
@@ -93,7 +102,6 @@ public class selectAlien : MonoBehaviour {
                 {
                     if (isOn && hit.collider.gameObject.tag == "Floor" && this.gameObject.tag == "Queen")
                     {
-
                         Vector3 target = new Vector3(hit.point.x, hit.point.y, hit.point.z);
                         GetComponent<EnemyBehaviour>().assignTarget(target);
                         isMoving = true;
@@ -121,6 +129,6 @@ public class selectAlien : MonoBehaviour {
             line.SetPosition(i, new Vector3(x, 0, z));
 
             angle += (360f / numOfPoints);
-        } 
+        }
     }
 }
