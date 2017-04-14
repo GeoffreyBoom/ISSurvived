@@ -94,7 +94,6 @@ public class selectAlien : Photon.MonoBehaviour
                 {
                     if (hit.rigidbody.gameObject.name == this.name)
                     {
-                        Debug.Log(hit.rigidbody.gameObject.name);
                         drawPoints = true;
                     }
                 }

@@ -6,17 +6,20 @@ using UnityEngine.AI;
 
 public class EnemyBehaviour : Photon.MonoBehaviour
 {
-
-    public enum State { Idle, MoveTo, Patrol, GoToAttack, AttackTarget, Hide };
+    //The possible states of the npc
+    public enum State { Idle, MoveTo, Patrol, GoToAttack, AttackTarget };
 
     public State currentState = State.Idle;
 
-    public bool isSelected = false;
     bool returnToIdle = false;
 
     public Vector3 target;
     public Vector3 patrolNextTarget;
-    public Vector3 enemyNextTarget;
+
+    //variables for detection
+    float detectionRadius = 20.0f;
+    float detectionAngle = 150.0f;
+    GameObject enemy;
 
     //variables for the arrive behaviour
     float nearRadius = 0.5f;
@@ -25,9 +28,10 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     float arriveMaxSpeed = 2.0f;
     float acceleration = 5.0f;
 
+    float currentSpeed = 0;
+
     //variables for flocking
     public Vector3 flockAcceleration = Vector3.zero;
-    public Quaternion flockRotation = Quaternion.identity;
 
     public List<State> futurStates;
     public List<Vector3> futurTargets;
@@ -38,9 +42,8 @@ public class EnemyBehaviour : Photon.MonoBehaviour
 
     NavMeshAgent agent;
 
-    public Vector3 velocity;
-
     Animator anim;
+    //variables to control npc state when going to attack player
     public bool alerted = false;
     public int currentIndex;
     int index = 0;
@@ -49,11 +52,12 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        alerted = false;
+        //getting the references to other objects
         agent = GetComponent<NavMeshAgent>();
-        clearAllFutur();
         inter = FindObjectOfType<RTSInterface>();
         anim = GetComponent<Animator>();
+        //initializing lists
+        clearAllFutur();
     }
 
     // Update is called once per frame
@@ -61,34 +65,15 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     {
         checkCurrentState();
     }
-
+    //method to check which state the npc is in and act accordingly
     void checkCurrentState()
     {
-        /*if (isEnemyDetected())
-        {
-            if(currentState != State.GoToAttack)
-            {
-                storeStateAsNext(currentState,target);
-                currentState = State.GoToAttack;
-                Debug.Log("Enemy Detected");
-            }                      
-            target = enemyNextTarget;
-        }else
-        {
-            if (currentState == State.GoToAttack)
-            {
-                currentState = State.Idle;
-            }
-        }*/
+
         if (currentState != State.AttackTarget)
-        {
-            if (isEnemyDetected())
+        {//if not attacking the player
+            if (!isEnemyDetected())
             {
-                Debug.Log("Enemy Detected");
-                currentState = State.GoToAttack;
-            }
-            else
-            {
+                //see if resources are detected
                 isResourceDetected();
             }
             if (currentState == State.GoToAttack)
@@ -103,10 +88,6 @@ public class EnemyBehaviour : Photon.MonoBehaviour
             {
                 patrolBehaviour();
             }
-            else if (currentState == State.Hide)
-            {
-                hideBehaviour();
-            }
             else
             {
                 idleBehaviour();
@@ -118,7 +99,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         }
     }
 
-
+    //if close enough to the player to attack her
     void attackTargetBehaviour()
     {
         player = GameObject.FindGameObjectWithTag("Player");
@@ -129,17 +110,21 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         }
         else
         {
+            //if the player gets to far away, return to idle
             currentState = State.Idle;
         }
     }
 
     void idleBehaviour()
     {
+        //default state
         alerted = false;
         currentIndex = 0;
         index = 0;
+        //see if there are states in the state list to go to
         if (futurStates.Count != 0)
         {
+            //add a state so that the enemy returns to this position after going through the other states
             if (!returnToIdle)
             {
                 storeState(State.MoveTo, transform.position);
@@ -155,6 +140,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
 
     void GoToAttackBehaviour()
     {
+        //the enemies try to surround the player
         if (surround == false)
         {
             if (currentIndex % 4 == 0)
@@ -175,88 +161,19 @@ public class EnemyBehaviour : Photon.MonoBehaviour
             }
             surround = true;
         }
-
+        //if they get close enough, they start attacking
         if (!moving())
         {
             anim.SetBool("isWalking", false);
-            //TO DO implement GoToAttacking behaviour
             currentState = State.AttackTarget;
             surround = false;
         }
-
     }
 
-
-
-    void moveToBehaviour()
-    {
-        if (!moving())
-        {
-            anim.SetBool("isWalking", false);
-            currentState = State.Idle;
-            //goToLastState();
-        }
-    }
-
-    void patrolBehaviour()
-    {
-        if (futurStates.Count != 0)
-        {
-            storeState(currentState, target);
-            goToNextState();
-        }
-        else if (!moving())
-        {
-            anim.SetBool("isWalking", false);
-            //change target
-            Vector3 temp = target;
-            assignTarget(patrolNextTarget);
-            assignPatrolTarget(temp);
-        }
-    }
-
-    void hideBehaviour()
-    {
-        //implement hiding behaviour
-    }
-
-    //variables for enemy detection
-    float detectionRadius = 20.0f;
-    float detectionAngle = 150.0f;
-    GameObject enemy;
-    bool isEnemyDetected()
-    {
-        /*RaycastHit hit;
-        if (Physics.SphereCast(transform.position, 10.0f, transform.forward, out hit, 15.0f))
-        {
-            if (hit.collider.gameObject.name.Equals("Enemy"))
-            {
-                enemyNextTarget = hit.collider.gameObject.transform.position;
-                return true;
-            }
-        }*/
-        if (enemy != null)
-        {
-            if ((enemy.transform.position - transform.position).magnitude < detectionRadius)
-            {
-                Vector3 dir = enemy.transform.position - transform.position;
-                if (Vector3.Angle(transform.forward, dir) < detectionAngle)
-                {
-                    assignTarget(enemy.transform.position);
-                    callAllFlock();
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            enemy = GameObject.FindGameObjectWithTag("Player");
-        }
-        return false;
-    }
 
     void callAllFlock()
     {
+        //alerts the surrounding enemies of the presence of the player if the npc hasn't been alerted first
         if (alerted == false)
         {
             alerted = true;
@@ -264,10 +181,12 @@ public class EnemyBehaviour : Photon.MonoBehaviour
             GameObject[] aliens = GameObject.FindGameObjectsWithTag("Alien");
             foreach (GameObject alien in aliens)
             {
+                //checks to see which npcs are close enough
                 if ((alien.transform.position - transform.position).magnitude < detectionRadius)
                 {
                     EnemyBehaviour en = alien.GetComponent<EnemyBehaviour>();
                     en.alerted = true;
+                    //makes them go attack
                     if (en.currentState != State.AttackTarget)
                     {
                         en.currentState = State.GoToAttack;
@@ -279,33 +198,80 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         }
     }
 
+    void moveToBehaviour()
+    {
+        //state where the npc moves towards its target
+        if (!moving())
+        {
+            anim.SetBool("isWalking", false);
+            currentState = State.Idle;
+        }
+    }
+
+    void patrolBehaviour()
+    {
+        //if there are other states in the list (the npc has seen some resource) it will go there before resuming its patrol
+        if (futurStates.Count != 0)
+        {
+            storeState(currentState, target);
+            goToNextState();
+        }
+        else if (!moving())
+        {   //if not, it will patrol until someone makes it stop
+            anim.SetBool("isWalking", false);
+            //change target
+            Vector3 temp = target;
+            assignTarget(patrolNextTarget);
+            assignPatrolTarget(temp);
+        }
+    }
+
+    bool isEnemyDetected()
+    {
+
+        if (enemy != null)
+        {   //tries to see if the player is close enough to detect
+            if ((enemy.transform.position - transform.position).magnitude < detectionRadius)
+            {   //sees if the player is in front
+                Vector3 dir = enemy.transform.position - transform.position;
+                if (Vector3.Angle(transform.forward, dir) < detectionAngle)
+                {
+                    //if that is the case, the npc alerts the others, and goes to attack
+                    assignTarget(enemy.transform.position);
+                    currentState = State.GoToAttack;
+                    callAllFlock();
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            //if the player hasn't been instantiated yet, try referencing him until he is
+            enemy = GameObject.FindGameObjectWithTag("Player");
+        }
+        return false;
+    }
+
     void isResourceDetected()
     {
+        //a method to detect if the npc can see resources
         GameObject[] resources = GameObject.FindGameObjectsWithTag("Resource");
         foreach (GameObject res in resources)
         {
             if ((res.transform.position - transform.position).magnitude < detectionRadius)
             {
+                // if that is the case, store its location 
                 Vector3 dir = res.transform.position - transform.position;
                 if (Vector3.Angle(transform.forward, dir) > detectionAngle)
                 {
-                    storeState(State.MoveTo, res.transform.position - Vector3.up * 0.55f);
+                    storeState(State.MoveTo, res.transform.position);
                 }
             }
         }
-        /*RaycastHit hit;
-        if (Physics.SphereCast(transform.position, 10.0f, transform.forward, out hit, 15.0f))
-        {
-            if (hit.collider.gameObject.name.Equals("Resource") && hit.collider.gameObject.transform.position != target)
-            {
-                storeState(State.MoveTo, hit.collider.gameObject.transform.position);
-            }
-        }*/
     }
 
     public bool moving()
     {
-        Debug.Log("In moving() function");
         //the direction in which to move
         Vector3 direction = (target - transform.position).normalized;
         //the distance to the target
@@ -325,7 +291,6 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         //if not oriented towards target
         if (transform.forward.Equals(direction))
         {
-            Debug.Log("In the if statement of transform.foward " + transform.forward + " " + direction);
             //turn towards target using align
             Quaternion fwr = Quaternion.LookRotation(transform.forward);
             Quaternion dir = Quaternion.LookRotation(direction);
@@ -334,46 +299,67 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         else
         {
             agent.SetDestination(target);
-            Debug.Log(agent.nextPosition);
             //move to target
             //if before the near radius
             if (dist > nearRadius)
             {
                 //accelerate towards target (or move at max speed)
-                velocity += direction * acceleration + flockAcceleration;
-                if (velocity.magnitude > nearMaxSpeed)
+                currentSpeed += acceleration;
+                if (currentSpeed > nearMaxSpeed)
                 {
-                    velocity = direction * nearMaxSpeed;
+                    currentSpeed = nearMaxSpeed;
                 }
             }//if before arrive radius
             else if (dist > arriveRadius)
             {
-
                 //accelerate towards target (or move at max speed)
-                velocity += direction * acceleration;
-                if (velocity.magnitude > arriveMaxSpeed)
+                currentSpeed += acceleration;
+                if (currentSpeed > arriveMaxSpeed)
                 {
-                    velocity = direction * arriveMaxSpeed;
+                    currentSpeed = arriveMaxSpeed;
                 }
             }
             //move npc
-            agent.speed = velocity.magnitude;
+            agent.speed = currentSpeed;
         }
         flockAcceleration = Vector3.zero;
         return true;
     }
-
+    //method to assign a new target
     public void assignTarget(Vector3 newTarget)
     {
         target = newTarget;
     }
+    //method to assign a new patrol target
     public void assignPatrolTarget(Vector3 newTarget)
     {
         patrolNextTarget = newTarget;
     }
 
+    void storeState(State nState, Vector3 nTarget)
+    {
+        //a method to add a futur state (for when resources are detected)
+        bool canAdd = true;
+        for (int i = 0; i < futurTargets.Count; i++)
+        {
+            //if the target already exists, dont add it
+            if (futurTargets[i] == nTarget)
+            {
+                canAdd = false;
+                break;
+            }
+        }
+        //otherwise, add it as a futur state
+        if (canAdd)
+        {
+            futurTargets.Add(nTarget);
+            futurStates.Add(nState);
+        }
+    }
+
     void goToNextState()
     {
+        //go to the first state in the list, and remove it from the list
         if (futurStates.Count != 0)
         {
             currentState = futurStates[0];
@@ -383,68 +369,13 @@ public class EnemyBehaviour : Photon.MonoBehaviour
 
         }
     }
-    void storeStateAsNext(State nState, Vector3 nTarget)
-    {
-        bool canAdd = true;
-        for (int i = 0; i < futurTargets.Count; i++)
-        {
-            if (futurTargets[i] == nTarget)
-            {
-                canAdd = false;
-                break;
-            }
-        }
 
-        if (canAdd)
-        {
-            futurTargets.Insert(0, nTarget);
-            futurStates.Insert(0, nState);
-        }
-    }
-    void storeState(State nState, Vector3 nTarget)
-    {
-        bool canAdd = true;
-        for (int i = 0; i < futurTargets.Count; i++)
-        {
-            if (futurTargets[i] == nTarget)
-            {
-                canAdd = false;
-                break;
-            }
-        }
-
-        if (canAdd)
-        {
-            futurTargets.Add(nTarget);
-            futurStates.Add(nState);
-        }
-    }
     public void clearAllFutur()
     {
+        //reinitialize the list
         futurTargets = new List<Vector3>();
         futurStates = new List<State>();
     }
-
-    void OnTriggerEnter(Collider col)
-    {
-        Debug.Log("Hit");
-        if (col.gameObject.tag.Equals("Resource"))
-        {
-            Debug.Log("Hit by npc");
-            inter.GotResource();
-        }
-        if (col.gameObject.tag.Equals("Player"))
-        {
-            transform.position -= transform.forward * 2;
-        }
-
-    }
-
-    public Vector3 getTarget()
-    {
-        return target;
-    }
-
 
     void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
