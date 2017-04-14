@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 /*
- *This script is attached to the plane in the testCamera scene. it enables and disable cameras based on the player selection from the UI scene.
+ *This script is attached to the plane in the level1 scene. it enables and disable cameras based on the player selection from the UI scene.
  * DataHolder.player is a static variable which is set to false if the player selection is TPS, true otherwise.  
  * 
  */

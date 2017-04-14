@@ -186,7 +186,7 @@ public class RTSInterface : MonoBehaviour
         if (resNum >= 2)
         {
             //if there is, update the number of resources
-            resNum -= 2;
+            resNum -= 1;
             string temp = resNum + "";
             crystalText.text = temp;
             return true;

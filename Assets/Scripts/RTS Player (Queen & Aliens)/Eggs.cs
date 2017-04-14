@@ -19,12 +19,10 @@ public class Eggs : MonoBehaviour
     void Update()
     {
 
-        if (queen.GetComponent<selectAlien>().isOn)
-        {
-            timer -= Time.deltaTime;
-            this.transform.GetChild(0).GetComponent<TextMesh>().text = Mathf.RoundToInt(timer).ToString();
-        }
+        timer -= Time.deltaTime;
+        this.transform.GetChild(0).GetComponent<TextMesh>().text = Mathf.RoundToInt(timer).ToString();     
 
+        //When the timer is done, spawn aliens:
         if (timer < 0)
         {
             GameObject alien = PhotonNetwork.Instantiate("Aliens", this.transform.position, this.transform.rotation, 0);

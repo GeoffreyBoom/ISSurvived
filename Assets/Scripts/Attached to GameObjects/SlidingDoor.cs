@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/*
+ * This script is used for the sliding doors of the game by updating its animation component.
+ * 
+ */ 
+
 public class SlidingDoor : MonoBehaviour {
 
 
     private Animator anim = null;
     private AudioSource doorAudio; 
-
 
     void Start()
     {
@@ -16,12 +21,11 @@ public class SlidingDoor : MonoBehaviour {
 
     }
 
+    //when the player is in front of the door:
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player" || other.gameObject.tag == "Alien" || other.gameObject.tag == "Queen")
         {
-            Debug.Log("opening "+ anim.GetBool("isOpen").ToString());
-
             anim.SetBool("isOpen", true);
 
             doorAudio.Play();
@@ -29,13 +33,11 @@ public class SlidingDoor : MonoBehaviour {
         }
     }
 
-
+    //When the player is exiting the door:
     void OnTriggerExit(Collider other)
     {
         if (other.gameObject.tag == "Player" || other.gameObject.tag == "Alien" || other.gameObject.tag == "Queen")
         {
-            Debug.Log("closing "+ anim.GetBool("isOpen").ToString());
-
             StartCoroutine(wait2Secs());
 
             anim.SetBool("isOpen", false);
@@ -44,6 +46,7 @@ public class SlidingDoor : MonoBehaviour {
         }
     }
 
+    //wait 2 seconds for better visuals:
     IEnumerator wait2Secs()
     {
         yield return new WaitForSeconds(2);

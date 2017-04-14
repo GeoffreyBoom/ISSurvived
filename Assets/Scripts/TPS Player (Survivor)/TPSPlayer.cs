@@ -6,15 +6,16 @@ using UnityEngine.UI;
 
 public class TPSPlayer : Photon.MonoBehaviour
 {
-    public int currentHealth, stamina;
+    // TPSPlayer class, with variables to represent the character (same as in UI)
+    public int currentHealth = 100, stamina;
     public static int ammo = 25;
     public static bool setDamageUI = false, isShooting = false;
 
-    float nextFire, rechargeTime = 0.0f, rechargeRate = 1.0f, fireRate = 0.3f;
+    float nextFire, fireRate = 0.3f;
 
+    // GameObjects in the scene that are used for shooting
     [SerializeField]
     string bulletName = "Bullet";
-
     Gun gun;
 
     void Start()
@@ -26,8 +27,10 @@ public class TPSPlayer : Photon.MonoBehaviour
     {
         if (photonView.isMine)
         {
-            if (Input.GetButton("Fire1") && Time.time > nextFire && Time.time > rechargeTime)
+            // If the TPSPlayer is shooting and the time from his last shot is superior to nextFire
+            if (Input.GetButton("Fire1") && Time.time > nextFire)
             {
+                // If he has enough ammo he shoots
                 if (ammo <= 25 && ammo > 0)
                 {
                     nextFire = Time.time + fireRate;
@@ -36,11 +39,11 @@ public class TPSPlayer : Photon.MonoBehaviour
                     gun.Fire();
                 }
 
+                // If not he automatically recharges
                 if (ammo == 0)
                 {
-                    rechargeTime = Time.time + rechargeRate;
-                    StartCoroutine(Recharge());
-                } 
+                    Recharge();
+                }
             }
 
             if (Input.GetButtonUp("Fire1"))
@@ -50,24 +53,24 @@ public class TPSPlayer : Photon.MonoBehaviour
 
             if (Input.GetKey("r"))
             {
-                rechargeTime = Time.time + rechargeRate;
-                StartCoroutine(Recharge());
+                Recharge();
             }
 
             Fall();
+
+
         }
-       
     }
 
+    // TPSPlayer function to update his variables (health, ammo)
     void Shoot()
     {
         ammo -= 1;
     }
 
-    public static IEnumerator Recharge()
+    public static void Recharge()
     {
         isShooting = false;
-        yield return new WaitForSeconds(1.5f);
         ammo = 25;
     }
 
@@ -77,19 +80,12 @@ public class TPSPlayer : Photon.MonoBehaviour
         setDamageUI = true;
     }
 
+    // Respawn function is he falls out the window
     void Fall()
     {
         if (transform.position.y < -10.0f)
         {
             transform.position = new Vector3(0.0f, 0.0f, 0.0f);
-        }
-    }
-
-    void OnCollisionEnter(Collision col)
-    {
-        if (col.gameObject.tag == "Alien" || col.gameObject.tag == "Queen")
-        {
-            TakeDamage();
         }
     }
 }

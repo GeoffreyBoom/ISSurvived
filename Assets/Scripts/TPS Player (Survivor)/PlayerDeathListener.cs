@@ -13,19 +13,9 @@ public class PlayerDeathListener : Photon.MonoBehaviour {
         {
             //RTS player won the game 
             Instantiator.winnerScreen.SetActive(true);
-            GameObject.Find("winnerText").GetComponent<Text>().text = "|QUEEN|";
-
-            Debug.Log("RTS Player is dead");
-
+            GameObject.FindGameObjectWithTag("WinnerText").GetComponent<Text>().text = "|OVERLORD|";
+            Time.timeScale = 0; //freeze the game
         }     
     }
 
-    [PunRPC]
-    void deleteThis(string dot)
-    {
-        if (gameObject.name == dot)
-        {
-            PhotonNetwork.Destroy(this.gameObject);
-        }
-    }
 }

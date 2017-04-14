@@ -3,22 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon;
 
+/*
+ *This script is used to select or deselect an Alien or the Overlord (Queen) units by creating a circle around them using LineRenderer. 
+ * 
+ */
+  
 public class selectAlien : Photon.MonoBehaviour
 {
 
 
     [SerializeField]
-    public float radius = 1f;
+    public float radius = 1f; // radius of circle
     [SerializeField]
-    public int numOfPoints = 100;
+    public int numOfPoints = 100; //will determine how smooth we want our circle
 
-    private float increment = 0.2f;
+    private float increment = 0.2f; 
     private bool drawPoints = false;
-    private float speed = 4.0f;
+    private float speed = 4.0f; //how fast it should increment
     LineRenderer line;
 
     public bool isMoving = false;
-    public bool isOn = false;
+    public bool isOn = false; //boolean to check if we selected or not the unit
 
 
     void Start()
@@ -41,6 +46,7 @@ public class selectAlien : Photon.MonoBehaviour
             {
                 if (isOn == false)
                 {
+                    //Create the circle:
                     if (increment <= radius)
                     {
 
@@ -56,6 +62,7 @@ public class selectAlien : Photon.MonoBehaviour
                 }
                 else
                 {
+                    //remove the circle:
                     if (increment >= 0.2f)
                     {
                         CreatePoints(increment);
@@ -78,6 +85,7 @@ public class selectAlien : Photon.MonoBehaviour
 
     void selectQueenOrAlien()
     {
+        //If we left click on the unit:
         if (Input.GetMouseButtonDown(0))
         {
             if (line.enabled == false)
@@ -94,11 +102,12 @@ public class selectAlien : Photon.MonoBehaviour
                 {
                     if (hit.rigidbody.gameObject.name == this.name)
                     {
-                        drawPoints = true;
+                        drawPoints = true; //Draw the points 
                     }
                 }
                 else
                 {
+                    //This is statement only applies if the gameobject is a queen. It determines its movements:
                     if (isOn && hit.collider.gameObject.tag == "Floor" && this.gameObject.tag == "Queen")
                     {
                         Vector3 target = new Vector3(hit.point.x, hit.point.y, hit.point.z);
@@ -110,6 +119,7 @@ public class selectAlien : Photon.MonoBehaviour
         }
     }
 
+    //Uses the line renderer to create a circle:
     public void CreatePoints(float increment)
     {
         line.positionCount = (numOfPoints + 1);

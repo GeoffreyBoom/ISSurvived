@@ -26,7 +26,7 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     float arriveRadius = 0.1f;
     float nearMaxSpeed = 10.0f;
     float arriveMaxSpeed = 2.0f;
-    float acceleration = 5.0f;
+    public float acceleration = 5.0f;
 
     float currentSpeed = 0;
 
@@ -49,9 +49,18 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     int index = 0;
     bool surround = false;
 
+    bool isQueen;
+
     // Use this for initialization
     void Start()
     {
+        if(this.gameObject.tag == "Queen")
+        {
+            isQueen = true;
+        }else
+        {
+            isQueen = false;
+        }
         //getting the references to other objects
         agent = GetComponent<NavMeshAgent>();
         inter = FindObjectOfType<RTSInterface>();
@@ -83,18 +92,37 @@ public class EnemyBehaviour : Photon.MonoBehaviour
                 }
                 if (currentState == State.GoToAttack)
                 {
+                    if (isQueen == false)
+                    {
+                        anim.SetBool("isWalking", true);
+                    }
+
                     GoToAttackBehaviour();
                 }
                 else if (currentState == State.MoveTo)
                 {
+                    if (isQueen == false)
+                    {
+                        anim.SetBool("isWalking", true);
+                    }
+
                     moveToBehaviour();
                 }
                 else if (currentState == State.Patrol)
                 {
+                    if (isQueen == false)
+                    {
+                        anim.SetBool("isWalking", true);
+                    }
+
                     patrolBehaviour();
                 }
                 else
                 {
+                    if(isQueen == false)
+                    {
+                        anim.SetBool("isWalking", false);
+                    }
                     idleBehaviour();
                 }
             }
@@ -166,7 +194,6 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         //if they get close enough, they start attacking
         if (!moving())
         {
-            anim.SetBool("isWalking", false);
             currentState = State.AttackTarget;
             surround = false;
         }
@@ -205,7 +232,6 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         //state where the npc moves towards its target
         if (!moving())
         {
-            anim.SetBool("isWalking", false);
             currentState = State.Idle;
         }
     }
@@ -220,7 +246,6 @@ public class EnemyBehaviour : Photon.MonoBehaviour
         }
         else if (!moving())
         {   //if not, it will patrol until someone makes it stop
-            anim.SetBool("isWalking", false);
             //change target
             Vector3 temp = target;
             assignTarget(patrolNextTarget);

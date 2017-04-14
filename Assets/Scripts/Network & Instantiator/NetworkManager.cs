@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon;
 
+
+/* 
+ *This is the network manager script which instantiate the network room for a player, then instantiate the players depending on the side 
+ * the user chose to be.  
+ * 
+ */
+  
 public class NetworkManager : Photon.PunBehaviour {
 
     private string VERSION = "v0.0.1";
@@ -15,7 +22,7 @@ public class NetworkManager : Photon.PunBehaviour {
 
     AudioSource getReadyAudio;
 
-    GameObject []  weight;
+    GameObject []  weight; // those weights is used to randomly choose a start position for the player
 
     // Use this for initialization
     void Start ()
@@ -41,8 +48,6 @@ public class NetworkManager : Photon.PunBehaviour {
 
     void OnPhotonRandomJoinFailed()
     {
-
-     //   Debug.Log("Can't join random room!  DON'T MIND ME, I'LL JUST MAKE MY OWN ROOM.");
         PhotonNetwork.CreateRoom(null);
     }
 
@@ -53,15 +58,16 @@ public class NetworkManager : Photon.PunBehaviour {
         int r = Random.Range(0, weight.Length - 1);
         Vector3 startPosition = Vector3.zero;
 
-        startPosition = weight[r].transform.position;
+        startPosition = weight[r].transform.position; // randomly selected start position
 
         if (DataHolder.player == false)
         {
-        //when we want to instantiate objects that we want ALL players to see:
+            //Instantiate the TPS player:  
            PhotonNetwork.Instantiate(playerPrefabName, startPosition, this.transform.rotation, 0);
         }
         else
         {
+            //Instantiate the RTS player:
             PhotonNetwork.Instantiate(queenPrefabName, startPosition, this.transform.rotation, 0);
             GameObject cam = GameObject.FindGameObjectWithTag("MainCamera");
             cam.transform.position = new Vector3(startPosition.x, cam.transform.position.y, startPosition.z);
@@ -70,6 +76,7 @@ public class NetworkManager : Photon.PunBehaviour {
 
         getReadyAudio.Play();
 
+        //Put back the weight scene objects back to false:
         GameObject.FindGameObjectWithTag("WeightParent").SetActive(false);
 
     }
