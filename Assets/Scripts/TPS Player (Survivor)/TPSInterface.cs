@@ -103,11 +103,13 @@ public class TPSInterface : MonoBehaviour
     public void increaseHealthUI()
     {
         currentHealth += 25;
+       
         Debug.Log(currentHealth);
         if(currentHealth > 100)
         {
             currentHealth = 100;
         }
+        FindObjectOfType<TPSPlayer>().currentHealth = currentHealth;
         healthBar.value = currentHealth;
     }
 

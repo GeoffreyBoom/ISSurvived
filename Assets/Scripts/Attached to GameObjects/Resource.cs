@@ -26,11 +26,17 @@ public class Resource : Photon.MonoBehaviour {
 	private void OnTriggerEnter(Collider collision)
 	{
         if (collision.gameObject.tag == "Queen" || collision.gameObject.tag == "Alien"){
-            FindObjectOfType<RTSInterface>().GotResource();
+            if (FindObjectOfType<RTSInterface>() != null)
+            {
+                FindObjectOfType<RTSInterface>().GotResource();
+            }            
         }
         else if(collision.gameObject.tag == "Player")
         {
-            FindObjectOfType<TPSInterface>().increaseHealthUI();
+            if(FindObjectOfType<TPSInterface>() != null)
+            {
+                FindObjectOfType<TPSInterface>().increaseHealthUI();
+            }            
         }
         //if a any player hits a resource then we destroy it:
 		if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Queen" || collision.gameObject.tag == "Alien")
