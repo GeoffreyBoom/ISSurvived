@@ -15,7 +15,7 @@ public class Camera_RTS : MonoBehaviour
     {
 
         zoomSpeed = 1.0f;
-        moveSpeed = 0.5f;
+        moveSpeed = 1.0f;
         mouseMargin = 1.0f;
         rotationSpeed = 2.0f;
         rotating = false;
@@ -35,11 +35,11 @@ public class Camera_RTS : MonoBehaviour
         //Mouse & keyboard movement
         if ((Input.mousePosition.x <= mouseMargin && !rotating) || Input.GetKey(KeyCode.A))
         {
-            transform.position -= transform.right * moveSpeed;
+            transform.position -= transform.right * moveSpeed * Time.deltaTime;
         }
         else if ((Input.mousePosition.x >= Screen.width - mouseMargin && !rotating) || Input.GetKey(KeyCode.D))
         {
-            transform.position += transform.right * moveSpeed;
+            transform.position += transform.right * moveSpeed * Time.deltaTime;
         }
 
         if ((Input.mousePosition.y <= mouseMargin && !rotating) || Input.GetKey(KeyCode.S))
@@ -65,7 +65,10 @@ public class Camera_RTS : MonoBehaviour
 
     public void changeCameraTarget(GameObject target)
     {
+
         transform.position = target.transform.position + Vector3.up * 10;
-        transform.forward = (target.transform.position - transform.position).normalized;
+		Vector3 rotation = new Vector3(0.5f, -0.5f);
+		transform.rotation = Quaternion.LookRotation(rotation);
+		transform.forward = (target.transform.position - transform.position).normalized;
     }
 }
