@@ -53,7 +53,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			//move backwards
 			if(v < 0)
 			{
-				GetComponent<Rigidbody>().velocity += transform.forward * 2;
+				GetComponent<Rigidbody>().velocity -= transform.forward * 2;
 				v = 0;
 			}
 			//strafe
