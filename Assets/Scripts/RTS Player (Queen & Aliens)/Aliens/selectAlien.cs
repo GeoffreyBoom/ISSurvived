@@ -18,7 +18,7 @@ public class selectAlien : Photon.MonoBehaviour
     public int numOfPoints = 100; //will determine how smooth we want our circle
 
     private float increment = 0.2f; 
-    private bool drawPoints = false;
+    public bool drawPoints = false;
     private float speed = 4.0f; //how fast it should increment
     LineRenderer line;
 
@@ -46,34 +46,11 @@ public class selectAlien : Photon.MonoBehaviour
             {
                 if (isOn == false)
                 {
-                    //Create the circle:
-                    if (increment <= radius)
-                    {
-
-                        CreatePoints(increment);
-                        increment += increment * Time.deltaTime * speed;
-                    }
-                    else
-                    {
-                        isOn = true;
-                        drawPoints = false;
-
-                    }
+                    doIncreament();
                 }
                 else
                 {
-                    //remove the circle:
-                    if (increment >= 0.2f)
-                    {
-                        CreatePoints(increment);
-                        increment -= increment * Time.deltaTime * speed;
-                    }
-                    else
-                    {
-                        isOn = false;
-                        isMoving = false;
-                        drawPoints = false;
-                    }
+                    doDecreament();
                 }
 
             }
@@ -82,6 +59,38 @@ public class selectAlien : Photon.MonoBehaviour
 
     }
 
+    public void doIncreament()
+    {
+        //Create the circle:
+        if (increment <= radius)
+        {
+
+            CreatePoints(increment);
+            increment += increment * Time.deltaTime * speed;
+        }
+        else
+        {
+            isOn = true;
+            drawPoints = false;
+
+        }
+    }
+
+    public void doDecreament()
+    {
+        //remove the circle:
+        if (increment >= 0.2f)
+        {
+            CreatePoints(increment);
+            increment -= increment * Time.deltaTime * speed;
+        }
+        else
+        {
+            isOn = false;
+            isMoving = false;
+            drawPoints = false;
+        }
+    }
 
     void selectQueenOrAlien()
     {

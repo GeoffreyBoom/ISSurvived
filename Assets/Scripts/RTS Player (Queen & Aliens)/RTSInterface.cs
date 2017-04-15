@@ -67,7 +67,12 @@ public class RTSInterface : MonoBehaviour
             //no npc is selected
             if (currentlyControlledEnemy != null && currentlyControlledEnemy.currentState == EnemyBehaviour.State.ReceiveInput)
             {
-                currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
+				if (currentlyControlledEnemy.gameObject.GetComponent<selectAlien>().isOn)
+                {
+                    currentlyControlledEnemy.gameObject.GetComponent<selectAlien>().isOn = true;
+                    currentlyControlledEnemy.gameObject.GetComponent<selectAlien>().drawPoints = true;
+					currentlyControlledEnemy.currentState = EnemyBehaviour.State.Idle;
+				}
             }
             currentlyControlledEnemy = null;
         }

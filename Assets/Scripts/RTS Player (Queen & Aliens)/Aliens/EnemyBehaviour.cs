@@ -72,7 +72,10 @@ public class EnemyBehaviour : Photon.MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        checkCurrentState();
+        if (photonView.isMine)
+        {
+            checkCurrentState();
+        }
     }
     //method to check which state the npc is in and act accordingly
     void checkCurrentState()
