@@ -44,11 +44,11 @@ public class Camera_RTS : MonoBehaviour
 
         if ((Input.mousePosition.y <= mouseMargin && !rotating) || Input.GetKey(KeyCode.S))
         {
-            transform.position -= new Vector3(transform.forward.x, 0.0f, transform.forward.z) * moveSpeed;
+            transform.position -= new Vector3(transform.forward.x, 0.0f, transform.forward.z) * moveSpeed * Time.deltaTime;
         }
         else if ((Input.mousePosition.y >= Screen.height - mouseMargin && !rotating) || Input.GetKey(KeyCode.W))
         {
-            transform.position += new Vector3(transform.forward.x, 0.0f, transform.forward.z) * moveSpeed;
+            transform.position += new Vector3(transform.forward.x, 0.0f, transform.forward.z) * moveSpeed * Time.deltaTime;
         }
 
         //Mouse rotation
